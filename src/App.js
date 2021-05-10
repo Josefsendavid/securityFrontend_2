@@ -67,11 +67,11 @@ function LoggedIn(props) {
         <Route exact path="/">
           <Home data = {dataFromServer} login = {props.login} loggedIn = {props.loggedIn} errorMessage = {props.errorMessage}/>
         </Route>
-        <Route path="/yourdogs" >
-          <YourDogs />
+        <Route path="/searchpages" >
+          <Pages />
         </Route>
-        <Route path="/breeds" >
-          <Breeds />
+        <Route path="/myprofile" >
+          <MyProfile />
         </Route>
         <Route path="/admin" >
           <Admin />
@@ -85,8 +85,8 @@ const Header = (props) => {
   return (
 <div ><ul class="nav nav-pills" style={{ textAlign: "center"}}>
   <li><NavLink exact activeClassName="active" to="/">Home</NavLink></li>
-  {props.loggedIn && <li><NavLink activeClassName="active" to="/yourdogs">Pages</NavLink></li>}
-  {/* <li><NavLink activeClassName="active" to="/breeds">Breeds</NavLink></li> */}
+  {props.loggedIn && <li><NavLink activeClassName="active" to="/searchpages">Pages</NavLink></li>}
+  { <li><NavLink activeClassName="active" to="/myprofile">My Profile</NavLink></li> }
   {props.loggedIn && props.adminToken != -1 && <li><NavLink activeClassName="active" to="/admin">Admin</NavLink></li>}
   {props.loggedIn && <li><NavLink activeClassName="active" style={{color: "red"}} to="/" onClick={props.logout}>Logout</NavLink></li>}
 </ul>
@@ -115,216 +115,26 @@ function Home(props) {
   );
 }
 
+function Pages(props) {
+
+  return (
+      <div></div>
+  );
+}
+
+function MyProfile(props) {
+
+  return (
+    <div></div>
+  );
+}
 function Admin(props) {
-  const [searches, setSearches] = useState("")
-
-  if(searches.searches){
-  return (<div>
-  <Action id={"searches"} middleId="info/" methodType="GET" buttonText ="Get searches" setItem={(item) => setSearches(item)} />
-  {searches.searches && <div class="wrapper fadeIn">{searches.searches.map((data ) => (<div>{data.date}, {data.breed}<br/><br/></div>))}</div>} </div>)}
-  return (<div><Action id={"searches"} middleId="info/" methodType="GET" buttonText ="Get searches" setItem={(item) => setSearches(item)} /></div>)
+  return(
+    <div></div>
+  )
   }
  
 
-function Breeds() {
-  const [breeds, setBreeds] = useState(0)
-  const [specificBreed, setSpecificBreed] = useState({breed: ""})
-  const [breedToSearch, setBreedToSearch] = useState("boxer")
-
-  useEffect(() => {
-  }, []);
-
-  return(<div>
-    
-    <input type="text" id="myInput" placeholder="Insert ID" value={breedToSearch} onChange={(event) => setBreedToSearch(event.target.value)} /><br/>
-    <Action id={breedToSearch} middleId="info/breedInfo/" buttonText ="Find breed" setItem={(item) => setSpecificBreed(item)} /><br/>
-
-    {specificBreed.breed != "" ? <div>
-      
-      {specificBreed.breed != "" && <div class="wrapper fadeIn">
-      Breed: {specificBreed.breed && specificBreed.breed}<br />
-      Wikipedia: {specificBreed.wikipedia && specificBreed.wikipedia}<br/><br/>
-      <img src={specificBreed.image}></img><br/>
-      {specificBreed.facts && specificBreed.facts}<br/></div>} </div> 
-    
-    : <div></div>}
-
-    <Action id={"breeds"} middleId="info/" methodType="GET" buttonText ="Show all breeds" setItem={(item) => setBreeds(item)} />
-    {breeds.dogs && <div class="wrapper fadeIn">{breeds.dogs.map((data ) => (<div>{data.breed}<br/><br/></div>))}</div>} 
-  </div>)
-}
-
-class AddDog extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {name: "", info: "", dateOfBirth: ""};
-  
-      this.handleNameChange = this.handleNameChange.bind(this);
-      this.handleInfoChange = this.handleInfoChange.bind(this);
-      this.handleDateOfBirthChange = this.handleDateOfBirthChange.bind(this);
-      this.handleSubmit = this.handleSubmit.bind(this);
-    }
-  
-    handleNameChange(event) {
-      this.setState({name: event.target.value});
-    }
-
-    handleInfoChange(event) {
-      this.setState({info: event.target.value});
-    }
-
-    handleDateOfBirthChange(event) {
-      this.setState({dateOfBirth: event.target.value});
-    }
-  
-    handleSubmit(event) {
-    event.preventDefault()
-   
-    let dog = {
-     name: this.state.name,
-     info: this.state.info,
-     dateOfBirth: this.state.dateOfBirth
-    } 
-
-      localStorage.setItem('type', "POST")
-      if(dog){
-      localStorage.setItem('body', JSON.stringify(dog)
-      )}
-      facade.sendToServer("http://localhost:8080/eksamen/api/info/addDog/2")
-    }
-  
-    render() {
-      return (
-        <div>
-         
-        <form onSubmit={this.handleSubmit}>
-          <label>
-            Name:<br/>
-            <input type="text" value={this.state.name} onChange={this.handleNameChange} /><br/><br/>
-          </label>
-          <label>
-            Info:<br/>
-            <input type="text" value={this.state.info} onChange={this.handleInfoChange} /><br/><br/>
-          </label>
-          <label>
-            DD/MM/YY:<br/>
-            <input type="text" value={this.state.dateOfBirth} onChange={this.handleDateOfBirthChange} /><br/><br/>
-          </label>
-          <br/><input type="submit" value="Add dog" />
-        </form></div>
-      );
-    }
-  }
-
-  class EditDog extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {name: "", info: "", dateOfBirth: "", id: 0};
-  
-      this.handleNameChange = this.handleNameChange.bind(this);
-      this.handleInfoChange = this.handleInfoChange.bind(this);
-      this.handleDateOfBirthChange = this.handleDateOfBirthChange.bind(this);
-      this.handleIdChange = this.handleIdChange.bind(this);
-      this.handleSubmit = this.handleSubmit.bind(this);
-    }
-  
-    handleNameChange(event) {
-      this.setState({name: event.target.value});
-    }
-
-    handleInfoChange(event) {
-      this.setState({info: event.target.value});
-    }
-
-    handleDateOfBirthChange(event) {
-      this.setState({dateOfBirth: event.target.value});
-    }
-
-    handleIdChange(event) {
-      this.setState({id: event.target.value});
-    }
-  
-    handleSubmit(event) {
-    event.preventDefault()
-   
-    let dog = {
-     name: this.state.name,
-     info: this.state.info,
-     dateOfBirth: this.state.dateOfBirth
-    } 
-
-      localStorage.setItem('type', "PUT")
-      if(dog){
-      localStorage.setItem('body', JSON.stringify(dog)
-      )}
-      facade.sendToServer("http://localhost:8080/eksamen/api/info/editDog/" + this.state.id)
-    }
-  
-    render() {
-      return (
-        <div>
-         
-        <form onSubmit={this.handleSubmit}>
-          <label>
-            Name:<br/>
-            <input type="text" value={this.state.name} onChange={this.handleNameChange} /><br/><br/>
-          </label>
-          <label>
-            Info:<br/>
-            <input type="text" value={this.state.info} onChange={this.handleInfoChange} /><br/><br/>
-          </label>
-          <label>
-            DD/MM/YY:<br/>
-            <input type="text" value={this.state.dateOfBirth} onChange={this.handleDateOfBirthChange} /><br/><br/>
-          </label>
-          <label>
-            Id:<br/>
-            <input type="text" value={this.state.id} onChange={this.handleIdChange} /><br/><br/>
-          </label>
-          <br/><input type="submit" value="Edit dog" />
-        </form></div>
-      );
-    }
-  }
-
-
-function YourDogs(){
-  
-  const [yourDogs, setYourDogs] = useState(0)
-  
-  return (<div>
-    
-    <AddDog />
-    <br/>
-    <EditDog />
-    <Action id={"dogs"} middleId="info/" methodType="GET" buttonText ="Show your dogs" setItem={(item) => setYourDogs(item)} />
-    
-    {yourDogs.dogsDTO ? <div class="wrapper fadeIn">{yourDogs.dogsDTO.map((data ) => (<div><b>{data.name}</b><br/> Id: {data.id} <br/>Born {data.dateOfBirth} <br/>{data.info}<br/><br/></div>))}</div>
-    : <div></div>}
-
-  </div>);
-}
-
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <h1>Something went wrong.</h1>;
-    }
-
-    return this.props.children; 
-  }
-}
-
- 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
@@ -347,14 +157,6 @@ function App() {
     ;} 
 
     return (
-      <ErrorBoundary
-        fallbackRender =  {({error, resetErrorBoundary, componentStack}) => (
-            <div>
-            <h1>An error occurred: {error.message}</h1>
-            <button onClick={resetErrorBoundary}>Try again</button>
-          </div>
-        )}
-      >
         <div style={{ textAlign: "center"}} class="wrapper fadeInDown">      
         <br>
         </br>
@@ -363,7 +165,7 @@ function App() {
           <LoggedIn logout={logout} login={login} loggedIn = {loggedIn} errorMessage = {errorMessage}/>
           </Router><br></br>
         </div>
-      </ErrorBoundary>
+     
     );
  
 }
