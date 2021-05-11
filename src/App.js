@@ -11,6 +11,7 @@ import {
   useParams,
   useRouteMatch
 } from "react-router-dom";
+import ProtectedRoute from './ProtectedRoute'
 
 
 const url = "http://localhost:8080/eksamen/api/"
@@ -53,11 +54,11 @@ function LogIn({ login }) {
 function LoggedIn(props) {
   const [dataFromServer, setDataFromServer] = useState("")
   const [adminToken, setAdminToken] = useState("")
-
   useEffect(() => { facade.fetchData().then(data=> setDataFromServer(data.msg)
     )
     let tokenTemp = dataFromServer.search("admin")
-    setAdminToken(tokenTemp);
+    setAdminToken(tokenTemp)
+    console.log(adminToken)
     }, [])
  
     return (
@@ -67,15 +68,12 @@ function LoggedIn(props) {
         <Route exact path="/">
           <Home data = {dataFromServer} login = {props.login} loggedIn = {props.loggedIn} errorMessage = {props.errorMessage}/>
         </Route>
-        <Route path="/searchpages" >
-          <Pages />
-        </Route>
-        <Route path="/myprofile" >
-          <MyProfile />
-        </Route>
-        <Route path="/admin" >
-          <Admin />
-        </Route>
+        <ProtectedRoute path="/searchpages" component={Pages} loggedIn={props.loggedIn}>
+        </ProtectedRoute>
+        <ProtectedRoute path="/myprofile" component={MyProfile} loggedIn={props.loggedIn}>
+        </ProtectedRoute>
+        <ProtectedRoute path="/admin" component={Admin} loggedIn={props.loggedIn}>         
+        </ProtectedRoute>
       </Switch>
     </div>
     );
@@ -129,8 +127,9 @@ function MyProfile(props) {
   );
 }
 function Admin(props) {
+  
   return(
-    <div></div>
+    <div><h1>ADMIN PAGE</h1></div>
   )
   }
  
@@ -142,7 +141,8 @@ function App() {
   const logout = () => {  
     facade.logout()
     setLoggedIn(false)
-    localStorage.setItem('jwtToken', "remove")
+    localStorage.clear();
+    localStorage.removeItem("jwtToken")
  } 
   const login = (user, pass) => { 
     facade.login(user,pass)
