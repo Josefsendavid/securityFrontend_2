@@ -61,6 +61,10 @@ const pingAdmin = (props) => {
   let str = fetch(props, options).then(handleHttpErrors);
   return str;
 }
+const fetchAdmin = () => {
+  const options = makeOptions("GET", true);
+  return fetch(URL + "/api/all", options).then(handleHttpErrors);
+}
 
 const makeOptions= (method,addToken,body) =>{
   
@@ -90,7 +94,8 @@ const makeOptions= (method,addToken,body) =>{
      fetchData,
      sendToServer,
      fetchFromServer,
-     pingAdmin
+     pingAdmin,
+     fetchAdmin
  }
 }
 

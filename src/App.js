@@ -52,21 +52,14 @@ function LogIn({ login }) {
  
 }
 function LoggedIn(props) {
-  const [dataFromServer, setDataFromServer] = useState("")
-  const [adminToken, setAdminToken] = useState("")
-  useEffect(() => { facade.fetchData().then(data=> setDataFromServer(data.msg)
-    )
-    let tokenTemp = dataFromServer.search("admin")
-    setAdminToken(tokenTemp)
-    console.log(adminToken)
-    }, [])
- 
+
+    
     return (
       <div>
-      <Header logout={props.logout} loggedIn = {props.loggedIn} token={adminToken}/>
+      <Header logout={props.logout} loggedIn = {props.loggedIn} adminToken={props.adminToken}/>
       <Switch>
         <Route exact path="/">
-          <Home data = {dataFromServer} login = {props.login} loggedIn = {props.loggedIn} errorMessage = {props.errorMessage}/>
+          <Home adminToken = {props.adminToken} login = {props.login} loggedIn = {props.loggedIn} errorMessage = {props.errorMessage}/>
         </Route>
         <ProtectedRoute path="/searchpages" component={Pages} loggedIn={props.loggedIn}>
         </ProtectedRoute>
@@ -80,12 +73,15 @@ function LoggedIn(props) {
 }
 
 const Header = (props) => {
+  
+  console.log(props)
+  console.log(props.adminToken)
   return (
 <div ><ul class="nav nav-pills" style={{ textAlign: "center"}}>
   <li><NavLink exact activeClassName="active" to="/">Home</NavLink></li>
   {props.loggedIn && <li><NavLink activeClassName="active" to="/searchpages">Pages</NavLink></li>}
-  { <li><NavLink activeClassName="active" to="/myprofile">My Profile</NavLink></li> }
-  {props.loggedIn && props.adminToken != -1 && <li><NavLink activeClassName="active" to="/admin">Admin</NavLink></li>}
+  {props.loggedIn && <li><NavLink activeClassName="active" to="/myprofile">My Profile</NavLink></li> }
+  {props.loggedIn && props.adminToken &&  <li><NavLink activeClassName="active" to="/admin">Admin</NavLink></li>}
   {props.loggedIn && <li><NavLink activeClassName="active" style={{color: "red"}} to="/" onClick={props.logout}>Logout</NavLink></li>}
 </ul>
 <hr />
@@ -137,14 +133,18 @@ function Admin(props) {
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
- 
+  const [adminToken, setAdminToken] = useState(false)
   const logout = () => {  
     facade.logout()
     setLoggedIn(false)
-    localStorage.clear();
-    localStorage.removeItem("jwtToken")
+    setAdminToken(false)
+    sessionStorage.clear();
  } 
   const login = (user, pass) => { 
+    if(user == "admin") {
+      setAdminToken(true)
+      console.log(adminToken)
+    }
     facade.login(user,pass)
     .then(res => {
       setLoggedIn(true)
@@ -154,7 +154,12 @@ function App() {
         setErrorMessage(err.message)
       })
     })
-    ;} 
+
+    
+
+  }
+
+  
 
     return (
         <div style={{ textAlign: "center"}} class="wrapper fadeInDown">      
@@ -162,7 +167,7 @@ function App() {
         </br>
         <br></br>
           <Router>
-          <LoggedIn logout={logout} login={login} loggedIn = {loggedIn} errorMessage = {errorMessage}/>
+          <LoggedIn logout={logout} login={login} loggedIn = {loggedIn} errorMessage = {errorMessage} adminToken = {adminToken}/>
           </Router><br></br>
         </div>
      
