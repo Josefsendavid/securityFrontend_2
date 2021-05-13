@@ -8,7 +8,7 @@ function ProtectedRoute({loggedIn: loggedIn, component: Component, ...rest}) { /
             if (loggedIn) {
                 return <Component />
             } else {
-               return <Redirect to={{pathname: '/', state: {from: props.location}}}/> //state finder bare den lokation, som vi vil redirecte til - pathname fortæller at vi vil redirecte til home page hvis man ikke er logget ind
+               return <Redirect to={{pathname: '/', state: {from: props.location}}}/> //state finder bare den lokation, som vi vil redirecte fra - pathname fortæller at vi vil redirecte til home page hvis man ikke er logget ind
             }
         }} />
     )

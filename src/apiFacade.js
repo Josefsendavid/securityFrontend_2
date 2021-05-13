@@ -56,15 +56,18 @@ const sendToServer = (props) => {
   return fetch(props, options).then(handleHttpErrors);
 }
 
-const pingAdmin = (props) => {
-  const options = makeOptions("GET", true);
-  let str = fetch(props, options).then(handleHttpErrors);
-  return str;
-}
-const fetchAdmin = () => {
-  const options = makeOptions("GET", true);
-  return fetch(URL + "/api/all", options).then(handleHttpErrors);
-}
+const signup = (user, password) => {
+  const options = makeOptions("POST", true, {
+    userName: user,
+    userPass: password,
+  });
+  return fetch(URL + "/api/info/createuser/", options)
+  .then(handleHttpErrors)
+  .then((res) => {
+    setToken(res.token);
+  });
+    
+};
 
 const makeOptions= (method,addToken,body) =>{
   
@@ -94,8 +97,8 @@ const makeOptions= (method,addToken,body) =>{
      fetchData,
      sendToServer,
      fetchFromServer,
-     pingAdmin,
-     fetchAdmin
+     signup
+
  }
 }
 

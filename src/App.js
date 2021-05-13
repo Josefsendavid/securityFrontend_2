@@ -9,7 +9,8 @@ import {
   Route,
   Link,
   useParams,
-  useRouteMatch
+  useRouteMatch,
+  useLocation
 } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute'
 
@@ -17,13 +18,19 @@ import ProtectedRoute from './ProtectedRoute'
 const url = "http://localhost:8080/eksamen/api/"
  
 
-function LogIn({ login }) {
+function LogIn({login, signup}) {
   const init = { username: "", password: "" };
   const [loginCredentials, setLoginCredentials] = useState(init);
  
   const performLogin = (evt) => {
     evt.preventDefault();
     login(loginCredentials.username, loginCredentials.password);
+  }
+
+  const performCreate = (evt) => {
+    evt.preventDefault();
+    signup(loginCredentials.username, loginCredentials.password);
+    console.log(loginCredentials)
   }
   const onChange = (evt) => {
     setLoginCredentials({ ...loginCredentials,[evt.target.id]: evt.target.value })
@@ -45,6 +52,9 @@ function LogIn({ login }) {
         <div id="formFooter">
         <a class="underlineHover" href="#"><div class="fadeIn fourth"><button class="btn btn-default" onClick={performLogin}>Login</button></div></a>
         </div>
+        <div id="formFooter">
+        <a class="underlineHover" href="#"><div class="fadeIn fourth"><button class="btn btn-default" onClick={performCreate}>Sign up</button></div></a>
+        </div>
       </form>
 
     </div></div>
@@ -52,14 +62,14 @@ function LogIn({ login }) {
  
 }
 function LoggedIn(props) {
-
+  console.log(props)
     
     return (
       <div>
       <Header logout={props.logout} loggedIn = {props.loggedIn} adminToken={props.adminToken}/>
       <Switch>
         <Route exact path="/">
-          <Home adminToken = {props.adminToken} login = {props.login} loggedIn = {props.loggedIn} errorMessage = {props.errorMessage}/>
+          <Home adminToken = {props.adminToken} signup = {props.signup} login = {props.login} loggedIn = {props.loggedIn} errorMessage = {props.errorMessage}/>
         </Route>
         <ProtectedRoute path="/searchpages" component={Pages} loggedIn={props.loggedIn}>
         </ProtectedRoute>
@@ -67,6 +77,9 @@ function LoggedIn(props) {
         </ProtectedRoute>
         <ProtectedRoute path="/admin" component={Admin} loggedIn={props.loggedIn}>         
         </ProtectedRoute>
+        <Route>
+          <NoMatch/>
+        </Route>
       </Switch>
     </div>
     );
@@ -75,7 +88,6 @@ function LoggedIn(props) {
 const Header = (props) => {
   
   console.log(props)
-  console.log(props.adminToken)
   return (
 <div ><ul class="nav nav-pills" style={{ textAlign: "center"}}>
   <li><NavLink exact activeClassName="active" to="/">Home</NavLink></li>
@@ -104,7 +116,7 @@ function Home(props) {
   return (
     <div style={{ textAlign: "center"}}>
       <br></br>
-      {!props.loggedIn ? <div><LogIn login = {props.login}/> <br/><br/><br/><br/>{props.errorMessage}</div> : <div>{props.data}</div>}
+      {!props.loggedIn ? <div><LogIn login = {props.login} signup ={props.signup}/> <br/><br/><br/><br/>{props.errorMessage}</div> : <div>{props.data}</div>}
     </div>
   );
 }
@@ -128,6 +140,16 @@ function Admin(props) {
     <div><h1>ADMIN PAGE</h1></div>
   )
   }
+  const NoMatch = () => {
+    let location = useLocation();
+    return(
+      <div>
+        <h3>
+          No match for location  <code>{location.pathname}</code>
+        </h3>
+      </div>
+    )
+  }
  
 
 function App() {
@@ -138,12 +160,11 @@ function App() {
     facade.logout()
     setLoggedIn(false)
     setAdminToken(false)
-    sessionStorage.clear();
+    localStorage.clear();
  } 
   const login = (user, pass) => { 
     if(user == "admin") {
       setAdminToken(true)
-      console.log(adminToken)
     }
     facade.login(user,pass)
     .then(res => {
@@ -154,9 +175,19 @@ function App() {
         setErrorMessage(err.message)
       })
     })
-
-    
-
+  }
+  const signup = (user, pass) => {
+    facade.signup(user,pass)
+    .then(res => {
+      setLoggedIn(false)
+      setAdminToken(false)
+      setErrorMessage("")
+      console.log(user + pass)
+    }).catch((error) => {
+      error.fullError.then((err) => {
+        setErrorMessage(err.message)
+      })
+    })
   }
 
   
@@ -167,7 +198,8 @@ function App() {
         </br>
         <br></br>
           <Router>
-          <LoggedIn logout={logout} login={login} loggedIn = {loggedIn} errorMessage = {errorMessage} adminToken = {adminToken}/>
+            
+          <LoggedIn logout={logout} login={login} signup={signup} loggedIn = {loggedIn} errorMessage = {errorMessage} adminToken = {adminToken}/>
           </Router><br></br>
         </div>
      
