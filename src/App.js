@@ -122,9 +122,15 @@ function Home(props) {
 }
 
 function Pages(props) {
-
+  const [allPages, setAllPages] = useState(0)
   return (
-      <div></div>
+      <div>
+      
+      <Action id={"pages"} middleId="page/" methodType="GET" buttonText ="Show all pages" setItem={(item) => setAllPages(item)} />
+    
+      {allPages.pagesDTO ? <div class="wrapper fadeIn">{allPages.pagesDTO.map((data ) => 
+      (<div><b>{data.title}</b><br/> Id: {data.id} <br/></div>))}</div>
+      : <div></div>}</div>
   );
 }
 
