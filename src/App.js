@@ -13,15 +13,18 @@ import {
   useLocation
 } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute'
+import ReCAPTCHA from 'react-google-recaptcha';
+import { render } from "@testing-library/react";
+import verify from "./verifyCaptcha";
 
 
 const url = "http://localhost:8080/eksamen/api/"
- 
 
-function LogIn({login, signup}) {
+
+function LogIn({login, signup, verify, captcha}) {
   const init = { username: "", password: "" };
   const [loginCredentials, setLoginCredentials] = useState(init);
- 
+
   const performLogin = (evt) => {
     evt.preventDefault();
     login(loginCredentials.username, loginCredentials.password);
@@ -33,9 +36,9 @@ function LogIn({login, signup}) {
     console.log(loginCredentials)
   }
   const onChange = (evt) => {
-    setLoginCredentials({ ...loginCredentials,[evt.target.id]: evt.target.value })
+    setLoginCredentials({ ...loginCredentials, [evt.target.id]: evt.target.value })
   }
- 
+
   return (
     <div>
       <div id="formContent">
@@ -50,7 +53,7 @@ function LogIn({login, signup}) {
         <br></br>
 
         <div id="formFooter">
-        <a class="underlineHover" href="#"><div class="fadeIn fourth"><button class="btn btn-default" onClick={performLogin}>Login</button></div></a>
+        <a class="underlineHover" href="#"><div class="fadeIn fourth"><button class="btn btn-default" onClick={performLogin, verify}>Login</button></div></a>
         </div>
         <div id="formFooter">
         <a class="underlineHover" href="#"><div class="fadeIn fourth"><button class="btn btn-default" onClick={performCreate}>Sign up</button></div></a>
@@ -59,7 +62,7 @@ function LogIn({login, signup}) {
 
     </div></div>
   )
- 
+
 }
 function LoggedIn(props) {
   console.log(props)
@@ -75,48 +78,48 @@ function LoggedIn(props) {
         </ProtectedRoute>
         <ProtectedRoute path="/myprofile" component={MyProfile} loggedIn={props.loggedIn}>
         </ProtectedRoute>
-        <ProtectedRoute path="/admin" component={Admin} loggedIn={props.loggedIn}>         
+        <ProtectedRoute path="/admin" component={Admin} loggedIn={props.loggedIn}>
         </ProtectedRoute>
         <Route>
           <NoMatch/>
         </Route>
       </Switch>
     </div>
-    );
+  );
 }
 
 const Header = (props) => {
-  
+
   console.log(props)
   return (
-<div ><ul class="nav nav-pills" style={{ textAlign: "center"}}>
-  <li><NavLink exact activeClassName="active" to="/">Home</NavLink></li>
-  {props.loggedIn && <li><NavLink activeClassName="active" to="/searchpages">Pages</NavLink></li>}
-  {props.loggedIn && <li><NavLink activeClassName="active" to="/myprofile">My Profile</NavLink></li> }
-  {props.loggedIn && props.adminToken &&  <li><NavLink activeClassName="active" to="/admin">Admin</NavLink></li>}
-  {props.loggedIn && <li><NavLink activeClassName="active" style={{color: "red"}} to="/" onClick={props.logout}>Logout</NavLink></li>}
-</ul>
-<hr />
-</div>
+    <div ><ul class="nav nav-pills" style={{ textAlign: "center" }}>
+      <li><NavLink exact activeClassName="active" to="/">Home</NavLink></li>
+      {props.loggedIn && <li><NavLink activeClassName="active" to="/searchpages">Pages</NavLink></li>}
+      {props.loggedIn && <li><NavLink activeClassName="active" to="/myprofile">My Profile</NavLink></li>}
+      {props.loggedIn && props.adminToken && <li><NavLink activeClassName="active" to="/admin">Admin</NavLink></li>}
+      {props.loggedIn && <li><NavLink activeClassName="active" style={{ color: "red" }} to="/" onClick={props.logout}>Logout</NavLink></li>}
+    </ul>
+      <hr />
+    </div>
   );
 }
 
 const Action = (props) => {
-  
+
   let dat;
   localStorage.setItem('type', "GET")
-   facade.fetchFromServer(url + props.middleId + props.id).then(data=>{
+  facade.fetchFromServer(url + props.middleId + props.id).then(data => {
     dat = data;
   })
-  return (<button class="btn btn-outline-info" onClick= {() => props.setItem(dat)}>{props.buttonText}</button>)
+  return (<button class="btn btn-outline-info" onClick={() => props.setItem(dat)}>{props.buttonText}</button>)
 }
 
 function Home(props) {
 
   return (
-    <div style={{ textAlign: "center"}}>
+    <div style={{ textAlign: "center" }}>
       <br></br>
-      {!props.loggedIn ? <div><LogIn login = {props.login} signup ={props.signup}/> <br/><br/><br/><br/>{props.errorMessage}</div> : <div>{props.data}</div>}
+      {!props.loggedIn ? <div><LogIn login = {props.login} signup ={props.signup} captcha = {props.onChangeCaptcha}/> <br/><br/><br/><br/>{props.errorMessage}</div> : <div>{props.data}</div>}
     </div>
   );
 }
@@ -141,8 +144,8 @@ function MyProfile(props) {
   );
 }
 function Admin(props) {
-  
-  return(
+
+  return (
     <div><h1>ADMIN PAGE</h1></div>
   )
   }
@@ -162,7 +165,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [adminToken, setAdminToken] = useState(false)
-  const logout = () => {  
+  const logout = () => {
     facade.logout()
     setLoggedIn(false)
     setAdminToken(false)
@@ -172,16 +175,16 @@ function App() {
     if(user == "admin") {
       setAdminToken(true)
     }
-    facade.login(user,pass)
-    .then(res => {
-      setLoggedIn(true)
-    })
-    .catch((error) => {
-      error.fullError.then((err) => {
-        setErrorMessage(err.message)
+    facade.login(user, pass)
+      .then(res => {
+        setLoggedIn(true)
       })
-    })
-  }
+      .catch((error) => {
+        error.fullError.then((err) => {
+          setErrorMessage(err.message)
+        })
+      })
+    }
   const signup = (user, pass) => {
     facade.signup(user,pass)
     .then(res => {
@@ -196,7 +199,9 @@ function App() {
     })
   }
 
-  
+  function onChangeCaptcha(value) {
+    console.log(value);
+  }
 
     return (
         <div style={{ textAlign: "center"}} class="wrapper fadeInDown">      
@@ -207,9 +212,11 @@ function App() {
             
           <LoggedIn logout={logout} login={login} signup={signup} loggedIn = {loggedIn} errorMessage = {errorMessage} adminToken = {adminToken}/>
           </Router><br></br>
+          <ReCAPTCHA sitekey="6LdnItMaAAAAAOWgXrVnVFJR7tBl3qtKUBj8qY9Y" onChange={onChangeCaptcha}/>
         </div>
      
     );
  
 }
+
 export default App;
