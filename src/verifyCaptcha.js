@@ -19,7 +19,7 @@ function verifyCaptcha(humanKey) {
         .then(res => res.json())
         .then(json => json.success)
         .catch(err => {
-            throw new Error(`Error in Google Siteverify API. ${err.message}`)
+            //throw new Error(`Error in Google Siteverify API. ${err.message}`)
         })
 
     if (humanKey === null || !isHuman) {
