@@ -42,6 +42,7 @@ function LogIn({ login, signup, verify }) {
     fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.reCaptcha_secret}&token=${token}`, {
       method: "post",
       token,
+      mode: 'no-cors'
     }).then(resp => {
       alert("Login success")
     })
@@ -207,11 +208,9 @@ const Pages = () => {
   const [data, setData] = useState();
 
   useEffect(() => {
-    let fetchedData
     localStorage.setItem('type', "GET")
     facade.fetchFromServer(url + "page/pages").then(data => {
-             fetchedData = data;
-             setData(fetchedData)
+             setData(data)
          })
   }, []);
 
@@ -233,15 +232,12 @@ const SpecificPage = ({ match }) => {
   const {
     params: { pageId },
   } = match;
-  const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState();
 
   useEffect(() => {
-    let fetchedData
     localStorage.setItem('type', "GET")
     facade.fetchFromServer(url + `page/page/${pageId}`, {}).then(data => {
-             fetchedData = data;
-             setData(fetchedData)
+             setData(data)
          })
   }, []);
 
@@ -260,7 +256,6 @@ const SpecificPage = ({ match }) => {
 
 
 function MyProfile(props) {
-
   return (
     <div></div>
   );
