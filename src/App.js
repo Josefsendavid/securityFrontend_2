@@ -158,52 +158,6 @@ function Home(props) {
   );
 }
 
-// function Pages(props) {
-//   const [allPages, setAllPages] = useState(0)
-//   return (
-   
-//      <div><Action id={"pages"} middleId="page/" methodType="GET" buttonText="Show all pages" setItem={(item) => setAllPages(item)} />
-//      {allPages.pagesDTO ? <div class="wrapper fadeIn">{allPages.pagesDTO.map((data) =>
-//          (<div><b>{data.title}</b><br /> Id: {data.id} <br /></div>))}</div> 
-//          : <div></div>}
-
-//    <div className="container center-block vlsection1">
-//       <div>
-//         {allPages.pagesDTO ? allPages.pagesDTO.map(data => (
-//           <div key={data} className="container">
-//             <div class="text-center"><Link to={data.title}>{data.title.toString()}</Link></div> 
-//           </div> 
-//         )): <div></div>}
-//       </div>
-//     </div></div>
-//   );
-// }
-
-// function Pages(props){
-
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [data, setData] = useState();
-
-//   function handleClick() {
-//       let fetchedData;
-//       localStorage.setItem('type', "GET")
-//       facade.fetchFromServer(url + "page/pages").then(data => {
-//       fetchedData = data;
-//       setData(fetchedData)
-//   })
-//   }
-
-//   return (
-//     <>
-//     <button class="btn btn-outline-info" onClick={() => handleClick()}>See all pages</button>
-//       {data &&
-//         data.pagesDTO.map((data, index) => {
-//           return <h5 key={index}>{data.title}</h5>;
-//         })}
-//     </>
-//   );
-// }
-
 const Pages = () => {
   const [data, setData] = useState();
 
