@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
-import { useForm, useFormMeta, Form } from 'react-hooks-form'
+import { useForm, useFormMeta, Form } from 'react-hooks-form';
 import facade from "./apiFacade";
+import adminFacade from "./adminFacade";
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import './other.css'
 import {
@@ -276,9 +277,9 @@ function MyProfile(props) {
   );
 }
 function Admin(props) {
-
+  let adminData = adminFacade.DeleteUser();
   return (
-    <div><h1>ADMIN PAGE</h1></div>
+    <div>{adminData}</div>
   )
 }
 const NoMatch = () => {

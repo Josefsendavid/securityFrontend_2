@@ -68,6 +68,10 @@ const signup = (user, password) => {
   });
     
 };
+const fetchDeleteUser = (user) => {
+  const options = makeOptions("DELETE", true); 
+  return fetch(URL + "/api/info/deleteuser/" + user, options).then(handleHttpErrors);
+}
 
 const makeOptions= (method,addToken,body) =>{
   
@@ -97,7 +101,8 @@ const makeOptions= (method,addToken,body) =>{
      fetchData,
      sendToServer,
      fetchFromServer,
-     signup
+     signup,
+     fetchDeleteUser
 
  }
 }
