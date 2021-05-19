@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
+import { useForm, useFormMeta, Form } from 'react-hooks-form'
 import facade from "./apiFacade";
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import './other.css'
@@ -44,7 +45,7 @@ function LogIn({ login, signup, verify }) {
       token,
       mode: 'no-cors'
     }).then(resp => {
-      alert("Login success")
+      //alert("Login success")
     })
       .catch(({ response }) => {
         setError(response);
@@ -96,8 +97,8 @@ function LogIn({ login, signup, verify }) {
 
       </div></div>
   )
-
 }
+
 function LoggedIn(props) {
   console.log(props)
 
@@ -113,6 +114,8 @@ function LoggedIn(props) {
         <ProtectedRoute path="/myprofile" component={MyProfile} loggedIn={props.loggedIn}>
         </ProtectedRoute>
         <ProtectedRoute path="/admin" component={Admin} loggedIn={props.loggedIn}>
+        </ProtectedRoute>
+        <ProtectedRoute path="/addPage" component={AddPage} loggedIn={props.loggedIn}>
         </ProtectedRoute>
         <Route path="/page/:pageId" component={SpecificPage} />
         <Route>
@@ -170,6 +173,7 @@ const Pages = () => {
 
   return (
     <>
+       <Link to="/addPage" className="btn btn-primary">Add a new page</Link><br/><br/>
        {data ?
         data.pagesDTO.map((page, index) => {
           return (
@@ -208,6 +212,63 @@ const SpecificPage = ({ match }) => {
   );
 };
 
+
+function AddPage(props){
+  return (
+    <div>
+      <PageCreator />
+      </div>
+    
+  )
+}
+
+
+function PageCreator({ login }) {
+  const init = { title: "", text: ""};
+  const [pageToAdd, setPageToAdd] = useState(init);
+  const [mainAuthor, setMainAuthor] = useState("");
+
+   useEffect(() => {
+     localStorage.setItem('type', "GET")
+      facade.fetchFromServer(url + "info/loggedInAs").then(data => {
+        setMainAuthor(data)
+  })
+   }, []);
+
+  const addPage = (evt) => {
+    evt.preventDefault();
+    let page = {
+      title: pageToAdd.title,
+      text: pageToAdd.text,
+      mainAuthor: mainAuthor
+    }
+    localStorage.setItem('type', "POST")
+      if(page){
+      localStorage.setItem('body', JSON.stringify(page)
+      )}
+      facade.sendToServer(url + "page/insertPage")
+  }
+
+  const onChange = (evt) => {
+    setPageToAdd({ ...pageToAdd, [evt.target.id]: evt.target.value })
+  }
+
+  return (
+    <div>
+      <div >
+        <h3>Add page</h3>
+
+        <form onChange={onChange} >
+          <label><input placeholder="Title" class="form-control" id="title" /></label><br/>
+          <label><input placeholder="Text" class="form-control" id="text" /></label><br/><br/>
+
+          <div >
+            <a  href="#"><div ><button class="btn btn-default" onClick={addPage}>Add Page</button></div></a>
+          </div>
+        </form>
+      </div></div>
+  )
+}
 
 function MyProfile(props) {
   return (
