@@ -21,7 +21,7 @@
   },
   "scripts": {
     "start": "set PORT=3013 && react-scripts start",
-    "build": "react-scripts build GENERATE_SOURCEMAP=false",
+    "winBuild": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
