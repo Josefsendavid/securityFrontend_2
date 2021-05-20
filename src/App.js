@@ -21,7 +21,8 @@ import { render } from "@testing-library/react";
 import verify from "./verifyCaptcha";
 require("dotenv").config();
 
-const url = "http://localhost:8080/eksamen/api/"
+//const url = "http://localhost:8080/eksamen/api/"
+const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
 
 
 function LogIn({ login, signup, verify }) {
