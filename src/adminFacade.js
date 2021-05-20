@@ -1,5 +1,6 @@
 import React, { useState,useEffect } from "react";
 import facade from "./apiFacade";
+import './other.css'
 
 function AdminFacade() {
 
@@ -26,7 +27,7 @@ function AdminFacade() {
                     return (
                         <div>
                             <input type="text" id="myInput" placeholder="Insert name of user" value={writeValue} onChange={(event) => setWriteValue(event.target.value)} />
-                            <button onClick={() => handleClick(writeValue)}>Delete User</button>
+                            <button class="btn btn-default" onClick={() => handleClick(writeValue)}>Delete User</button>
                             <ul>
                                 <h4>User with name: "{user}" was deleted </h4>
                             </ul>
@@ -37,7 +38,7 @@ function AdminFacade() {
                     } else if (user == null) {
                     return <div>
                         <input type="text" id="myInput" placeholder="Insert name of user" value={writeValue} onChange={(event) => setWriteValue(event.target.value)} />
-                        <button onClick={() => handleClick(writeValue)}>Delete User</button>
+                        <button class="btn btn-default"  onClick={() => handleClick(writeValue)}>Delete User</button>
                         <p>Can't find user in system</p>
                     </div>
                     }

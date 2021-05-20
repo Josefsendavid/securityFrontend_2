@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { useForm, useFormMeta, Form } from 'react-hooks-form';
 import facade from "./apiFacade";
 import adminFacade from "./adminFacade";
+import EdiText from 'react-editext'
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import './other.css'
 import {
@@ -174,7 +175,7 @@ const Pages = () => {
 
   return (
     <>
-       <Link to="/addPage" className="btn btn-primary">Add a new page</Link><br/><br/>
+       <Link to="/addPage" class="btn btn-outline-info"  >Add a new page</Link><br/><br/>
        {data ?
         data.pagesDTO.map((page, index) => {
           return (
@@ -192,13 +193,54 @@ const SpecificPage = ({ match }) => {
     params: { pageId },
   } = match;
   const [data, setData] = useState();
+  const [editPage, setEditPage] = useState(false);
+  const [page, setPage] = useState("");
+  const [adminRights, setAdminRights] = useState("");
+  const [writeRights, setWriteRights] = useState("");
+  const [deleteRights, setDeleteRights] = useState("");
+  const [loggedInAs, setLoggedInAs] = useState("");
 
   useEffect(() => {
     localStorage.setItem('type', "GET")
     facade.fetchFromServer(url + `page/page/${pageId}`, {}).then(data => {
              setData(data)
-         })
+             if(data.writeRights){setWriteRights(data.writeRights.replace(/\s+/g, '').split(','))}
+             if(data.deleteRights){setDeleteRights(data.deleteRights.replace(/\s+/g, '').split(','))}
+             if(data.adminRights){setAdminRights(data.adminRights.replace(/\s+/g, '').split(','))}
+             console.log(data.adminRights)
+        })
+    localStorage.setItem('type', "GET")
+    facade.fetchFromServer(url + "info/loggedInAs").then(data => {
+           setLoggedInAs(data)
+        })
   }, []);
+
+  function EditPage(){
+    setEditPage(true)
+    setPage(data)
+  }
+
+  function DeletePage(){
+    localStorage.setItem('type', "DELETE")
+    facade.sendToServer(url + "page/deletePage/" + pageId)
+  }
+
+  const onChange = (evt) => {
+    setPage({ ...page, [evt.target.id]: evt.target.value })
+  }
+
+  const changePage = (evt) => {
+    evt.preventDefault();
+     let editedPage = {
+       title: page.title,
+       text: page.text
+     }
+     localStorage.setItem('type', "PUT")
+     if(editedPage){
+     localStorage.setItem('body', JSON.stringify(editedPage)
+     )}
+     facade.sendToServer(url + "page/editPage/" + pageId)
+  }
 
   return (
     <>
@@ -206,10 +248,36 @@ const SpecificPage = ({ match }) => {
         <>
           <h2>{data.title}</h2><br/>
           {data.text}<br/><br/>
-          <Link to="/searchpages">Return</Link>
+          <br/><Link to="/searchpages">Return</Link><br/><br/>
+
+
+          {deleteRights.includes(loggedInAs) || adminRights.includes(loggedInAs) || data.mainAuthor == loggedInAs ? <div>
+          <button class="btn btn-outline-info" onClick= {() => DeletePage()}>Delete page</button></div>
+          : <div></div>}
+          
+          {writeRights.includes(loggedInAs) || adminRights.includes(loggedInAs) || data.mainAuthor == loggedInAs ? <div>
+            <button class="btn btn-outline-info" onClick= {() => EditPage()}>Edit page</button><br/><br/>
+          {editPage ? 
+          
+          <div>
+          <form onChange={onChange} >
+          <label><input value={page.title} class="form-control" id="title" /></label><br/>
+          <label><input value={page.text} class="form-control" id="text" /></label><br/><br/>
+
+          <div >
+            <a  href="#"><div ><button class="btn btn-outline-info"  onClick={changePage}>Confirm changes</button></div></a>
+          </div>
+          </form>
+          </div>
+          : <div></div>
+          //VIS INGENTING
+          }   </div> 
+          : <div></div>}
+          
         </>
       ) : <div></div>}
     </>
+    
   );
 };
 
@@ -218,13 +286,12 @@ function AddPage(props){
   return (
     <div>
       <PageCreator />
-      </div>
+    </div>
     
   )
 }
 
-
-function PageCreator({ login }) {
+function PageCreator() {
   const init = { title: "", text: ""};
   const [pageToAdd, setPageToAdd] = useState(init);
   const [mainAuthor, setMainAuthor] = useState("");
