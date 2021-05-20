@@ -18,7 +18,6 @@ import {
 import ProtectedRoute from './ProtectedRoute'
 import ReCAPTCHA from 'react-google-recaptcha';
 import { render } from "@testing-library/react";
-import verify from "./verifyCaptcha";
 require("dotenv").config();
 
 //const url = "http://localhost:8080/eksamen/api/"
