@@ -93,6 +93,7 @@ function apiFacade() {
       Promise.reject(console.log("rejected"));
       //history.push('/');
       alert("Session expired. \nRedirecting to login.")
+      localStorage.clear();
       window.location.pathname = '/'
     }
   }
