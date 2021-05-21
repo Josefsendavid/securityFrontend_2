@@ -13,16 +13,17 @@ import {
   Link,
   useParams,
   useRouteMatch,
-  useLocation
+  useLocation,
+  Redirect
 } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute'
 import ReCAPTCHA from 'react-google-recaptcha';
 import { render } from "@testing-library/react";
+import history from './history';
 require("dotenv").config();
 
 //const url = "http://localhost:8080/eksamen/api/"
 const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
-
 
 function LogIn({ login, signup, verify }) {
   const init = { username: "", password: "" };
@@ -40,7 +41,7 @@ function LogIn({ login, signup, verify }) {
 
     setError("");
     console.log(token)
-    login(loginCredentials.username, loginCredentials.password);
+    //login(loginCredentials.username, loginCredentials.password);
 
     fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.reCaptcha_secret}&token=${token}`, {
       method: "post",
@@ -48,6 +49,7 @@ function LogIn({ login, signup, verify }) {
       mode: 'no-cors'
     }).then(resp => {
       //alert("Login success")
+      login(loginCredentials.username, loginCredentials.password);
     })
       .catch(({ response }) => {
         setError(response);
@@ -55,7 +57,6 @@ function LogIn({ login, signup, verify }) {
         if(reCaptcha.current != null){
         reCaptcha.current.reset();}
         setToken("");
-        console.log(token, "Token reset")
       })
   }
 
@@ -74,9 +75,9 @@ function LogIn({ login, signup, verify }) {
         <h2>Login</h2>
 
         <form class="fadeIn second" onChange={onChange} >
-          <input placeholder="User Name" class="form-control" id="username" />
+          <input placeholder="User Name" class="form-control" id="username"/>
           <br></br>
-          <div class="fadeIn third"><input placeholder="Password" class="form-control" id="password" /></div>
+          <div class="fadeIn third"><input placeholder="Password" class="form-control" id="password" type="password"/></div>
           <br></br>
 
           <br></br>
@@ -163,7 +164,7 @@ function Home(props) {
   );
 }
 
-const Pages = () => {
+const Pages = (props) => {
   const [data, setData] = useState();
 
   useEffect(() => {
@@ -364,6 +365,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [adminToken, setAdminToken] = useState(false)
+
   const logout = () => {
     facade.logout()
     setLoggedIn(false)
@@ -398,16 +400,12 @@ function App() {
       })
   }
 
-  function onChangeCaptcha(value) {
-    console.log(value);
-  }
-
   return (
     <div style={{ textAlign: "center" }} class="wrapper fadeInDown">
       <br>
       </br>
       <br></br>
-      <Router>
+      <Router history={history}>
         <LoggedIn logout={logout} login={login} signup={signup} loggedIn={loggedIn} errorMessage={errorMessage} adminToken={adminToken} />
       </Router><br></br>
     </div>
