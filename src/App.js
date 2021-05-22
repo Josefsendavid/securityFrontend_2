@@ -13,16 +13,17 @@ import {
   Link,
   useParams,
   useRouteMatch,
-  useLocation
+  useLocation,
+  Redirect
 } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute'
 import ReCAPTCHA from 'react-google-recaptcha';
 import { render } from "@testing-library/react";
+import history from './history';
 require("dotenv").config();
 
 const url = "http://localhost:8080/eksamen/api/"
 //const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
-
 
 function LogIn({ login, signup, verify }) {
   const init = { username: "", password: "" };
@@ -40,7 +41,7 @@ function LogIn({ login, signup, verify }) {
 
     setError("");
     console.log(token)
-    login(loginCredentials.username, loginCredentials.password);
+    //login(loginCredentials.username, loginCredentials.password);
 
     fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.reCaptcha_secret}&token=${token}`, {
       method: "post",
@@ -48,14 +49,15 @@ function LogIn({ login, signup, verify }) {
       mode: 'no-cors'
     }).then(resp => {
       //alert("Login success")
+      login(loginCredentials.username, loginCredentials.password);
     })
       .catch(({ response }) => {
         setError(response);
       }).finally(() => {
-        if(reCaptcha.current != null){
-        reCaptcha.current.reset();}
+        if (reCaptcha.current != null) {
+          reCaptcha.current.reset();
+        }
         setToken("");
-        console.log(token, "Token reset")
       })
   }
 
@@ -76,7 +78,7 @@ function LogIn({ login, signup, verify }) {
         <form class="fadeIn second" onChange={onChange} >
           <input placeholder="User Name" class="form-control" id="username" />
           <br></br>
-          <div class="fadeIn third"><input placeholder="Password" class="form-control" id="password" /></div>
+          <div class="fadeIn third"><input placeholder="Password" class="form-control" id="password" type="password" /></div>
           <br></br>
 
           <br></br>
@@ -85,7 +87,7 @@ function LogIn({ login, signup, verify }) {
               ref={reCaptcha}
               sitekey={"6LdnItMaAAAAAOWgXrVnVFJR7tBl3qtKUBj8qY9Y"}
               render="explicit"
-              style={{transform: "scale(0.65)"}}
+              style={{ transform: "scale(0.65)" }}
               onChange={token => setToken(token)}
               onExpired={e => setToken("")} />
           </div>
@@ -106,7 +108,7 @@ function LoggedIn(props) {
 
   return (
     <div>
-      <Header logout={props.logout} loggedIn={props.loggedIn} adminToken={props.adminToken} />
+      <Header refresh={refresh} logout={props.logout} loggedIn={props.loggedIn} adminToken={props.adminToken} />
       <Switch>
         <Route exact path="/">
           <Home adminToken={props.adminToken} signup={props.signup} login={props.login} loggedIn={props.loggedIn} errorMessage={props.errorMessage} />
@@ -163,27 +165,27 @@ function Home(props) {
   );
 }
 
-const Pages = () => {
+const Pages = (props) => {
   const [data, setData] = useState();
 
   useEffect(() => {
     localStorage.setItem('type', "GET")
     facade.fetchFromServer(url + "page/pages").then(data => {
-             setData(data)
-         })
+      setData(data)
+    })
   }, []);
 
   return (
     <>
-       <Link to="/addPage" class="btn btn-outline-info"  >Add a new page</Link><br/><br/>
-       {data ?
+      <Link to="/addPage" class="btn btn-outline-info"  >Add a new page</Link><br /><br />
+      {data ?
         data.pagesDTO.map((page, index) => {
           return (
             <h5 key={index}>
               <Link to={`/page/${page.id}`}>{page.title}</Link>
             </h5>
           );
-        }) : <div></div>} 
+        }) : <div></div>}
     </>
   );
 };
@@ -203,24 +205,24 @@ const SpecificPage = ({ match }) => {
   useEffect(() => {
     localStorage.setItem('type', "GET")
     facade.fetchFromServer(url + `page/page/${pageId}`, {}).then(data => {
-             setData(data)
-             if(data.writeRights){setWriteRights(data.writeRights.replace(/\s+/g, '').split(','))}
-             if(data.deleteRights){setDeleteRights(data.deleteRights.replace(/\s+/g, '').split(','))}
-             if(data.adminRights){setAdminRights(data.adminRights.replace(/\s+/g, '').split(','))}
-             console.log(data.adminRights)
-        })
+      setData(data)
+      if (data.writeRights) { setWriteRights(data.writeRights.replace(/\s+/g, '').split(',')) }
+      if (data.deleteRights) { setDeleteRights(data.deleteRights.replace(/\s+/g, '').split(',')) }
+      if (data.adminRights) { setAdminRights(data.adminRights.replace(/\s+/g, '').split(',')) }
+      console.log(data.adminRights)
+    })
     localStorage.setItem('type', "GET")
     facade.fetchFromServer(url + "info/loggedInAs").then(data => {
-           setLoggedInAs(data)
-        })
+      setLoggedInAs(data)
+    })
   }, []);
 
-  function EditPage(){
+  function EditPage() {
     setEditPage(true)
     setPage(data)
   }
 
-  function DeletePage(){
+  function DeletePage() {
     localStorage.setItem('type', "DELETE")
     facade.sendToServer(url + "page/deletePage/" + pageId)
   }
@@ -231,77 +233,78 @@ const SpecificPage = ({ match }) => {
 
   const changePage = (evt) => {
     evt.preventDefault();
-     let editedPage = {
-       title: page.title,
-       text: page.text
-     }
-     localStorage.setItem('type', "PUT")
-     if(editedPage){
-     localStorage.setItem('body', JSON.stringify(editedPage)
-     )}
-     facade.sendToServer(url + "page/editPage/" + pageId)
+    let editedPage = {
+      title: page.title,
+      text: page.text
+    }
+    localStorage.setItem('type', "PUT")
+    if (editedPage) {
+      localStorage.setItem('body', JSON.stringify(editedPage)
+      )
+    }
+    facade.sendToServer(url + "page/editPage/" + pageId)
   }
 
   return (
     <>
       {data ? (
         <>
-          <h2>{data.title}</h2><br/>
-          {data.text}<br/><br/>
-          <br/><Link to="/searchpages">Return</Link><br/><br/>
+          <h2>{data.title}</h2><br />
+          {data.text}<br /><br />
+          <br /><Link to="/searchpages">Return</Link><br /><br />
 
 
           {deleteRights.includes(loggedInAs) || adminRights.includes(loggedInAs) || data.mainAuthor == loggedInAs ? <div>
-          <button class="btn btn-outline-info" onClick= {() => DeletePage()}>Delete page</button></div>
-          : <div></div>}
-          
-          {writeRights.includes(loggedInAs) || adminRights.includes(loggedInAs) || data.mainAuthor == loggedInAs ? <div>
-            <button class="btn btn-outline-info" onClick= {() => EditPage()}>Edit page</button><br/><br/>
-          {editPage ? 
-          
-          <div>
-          <form onChange={onChange} >
-          <label><input value={page.title} class="form-control" id="title" /></label><br/>
-          <label><input value={page.text} class="form-control" id="text" /></label><br/><br/>
+            <button class="btn btn-outline-info" onClick={() => DeletePage()}>Delete page</button></div>
+            : <div></div>}
 
-          <div >
-            <a  href="#"><div ><button class="btn btn-outline-info"  onClick={changePage}>Confirm changes</button></div></a>
-          </div>
-          </form>
-          </div>
-          : <div></div>
-          //VIS INGENTING
-          }   </div> 
-          : <div></div>}
-          
+          {writeRights.includes(loggedInAs) || adminRights.includes(loggedInAs) || data.mainAuthor == loggedInAs ? <div>
+            <button class="btn btn-outline-info" onClick={() => EditPage()}>Edit page</button><br /><br />
+            {editPage ?
+
+              <div>
+                <form onChange={onChange} >
+                  <label><input value={page.title} class="form-control" id="title" /></label><br />
+                  <label><input value={page.text} class="form-control" id="text" /></label><br /><br />
+
+                  <div >
+                    <a href="#"><div ><button class="btn btn-outline-info" onClick={changePage}>Confirm changes</button></div></a>
+                  </div>
+                </form>
+              </div>
+              : <div></div>
+              //VIS INGENTING
+            }   </div>
+            : <div></div>}
+
         </>
       ) : <div></div>}
     </>
-    
+
   );
 };
 
 
-function AddPage(props){
+function AddPage(props) {
   return (
     <div>
       <PageCreator />
     </div>
-    
+
   )
 }
 
 function PageCreator() {
-  const init = { title: "", text: ""};
+  const init = { title: "", text: "" };
   const [pageToAdd, setPageToAdd] = useState(init);
   const [mainAuthor, setMainAuthor] = useState("");
 
-   useEffect(() => {
-     localStorage.setItem('type', "GET")
-      facade.fetchFromServer(url + "info/loggedInAs").then(data => {
-        setMainAuthor(data)
-  })
-   }, []);
+  useEffect(() => {
+    localStorage.setItem('type', "GET")
+    facade.fetchFromServer(url + "info/loggedInAs").then(data => {
+      setMainAuthor(data)
+    })
+  }, []);
 
   const addPage = (evt) => {
     evt.preventDefault();
@@ -311,10 +314,11 @@ function PageCreator() {
       mainAuthor: mainAuthor
     }
     localStorage.setItem('type', "POST")
-      if(page){
+    if (page) {
       localStorage.setItem('body', JSON.stringify(page)
-      )}
-      facade.sendToServer(url + "page/insertPage")
+      )
+    }
+    facade.sendToServer(url + "page/insertPage")
   }
 
   const onChange = (evt) => {
@@ -327,11 +331,11 @@ function PageCreator() {
         <h3>Add page</h3>
 
         <form onChange={onChange} >
-          <label><input placeholder="Title" class="form-control" id="title" /></label><br/>
-          <label><input placeholder="Text" class="form-control" id="text" /></label><br/><br/>
+          <label><input placeholder="Title" class="form-control" id="title" /></label><br />
+          <label><input placeholder="Text" class="form-control" id="text" /></label><br /><br />
 
           <div >
-            <a  href="#"><div ><button class="btn btn-default" onClick={addPage}>Add Page</button></div></a>
+            <a href="#"><div ><button class="btn btn-default" onClick={addPage}>Add Page</button></div></a>
           </div>
         </form>
       </div></div>
@@ -360,10 +364,21 @@ const NoMatch = () => {
   )
 }
 
+const refresh = () => {
+  window.onbeforeunload = (event) => {
+    const e = event || window.event;
+    e.preventDefault();
+    localStorage.clear();
+  }
+}
+refresh()
+
+
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [adminToken, setAdminToken] = useState(false)
+
   const logout = () => {
     facade.logout()
     setLoggedIn(false)
@@ -398,16 +413,12 @@ function App() {
       })
   }
 
-  function onChangeCaptcha(value) {
-    console.log(value);
-  }
-
   return (
     <div style={{ textAlign: "center" }} class="wrapper fadeInDown">
       <br>
       </br>
       <br></br>
-      <Router>
+      <Router history={history}>
         <LoggedIn logout={logout} login={login} signup={signup} loggedIn={loggedIn} errorMessage={errorMessage} adminToken={adminToken} />
       </Router><br></br>
     </div>
