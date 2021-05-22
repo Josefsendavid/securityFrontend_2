@@ -22,8 +22,8 @@ import { render } from "@testing-library/react";
 import history from './history';
 require("dotenv").config();
 
-const url = "http://localhost:8080/eksamen/api/"
-//const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
+//const url = "http://localhost:8080/eksamen/api/"
+const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
 
 function LogIn({ login, signup, verify }) {
   const init = { username: "", password: "" };
@@ -298,7 +298,8 @@ function PageCreator() {
   const init = { title: "", text: "" };
   const [pageToAdd, setPageToAdd] = useState(init);
   const [mainAuthor, setMainAuthor] = useState("");
-
+  var iChars = "!@#$%^&*()+=-[]\\\';,./{}|\":<>?"
+   
   useEffect(() => {
     localStorage.setItem('type', "GET")
     facade.fetchFromServer(url + "info/loggedInAs").then(data => {
@@ -308,11 +309,19 @@ function PageCreator() {
 
   const addPage = (evt) => {
     evt.preventDefault();
+
+    for (var i = 0; i < pageToAdd.title.length; i++) {
+      if (iChars.indexOf(pageToAdd.title.charAt(i)) != -1) {
+        alert("No special signs")
+        return;
+      }
+    }
+
     let page = {
       title: pageToAdd.title,
       text: pageToAdd.text,
       mainAuthor: mainAuthor
-    }
+    } 
     localStorage.setItem('type', "POST")
     if (page) {
       localStorage.setItem('body', JSON.stringify(page)
