@@ -20,8 +20,8 @@ import ReCAPTCHA from 'react-google-recaptcha';
 import { render } from "@testing-library/react";
 require("dotenv").config();
 
-//const url = "http://localhost:8080/eksamen/api/"
-const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
+const url = "http://localhost:8080/eksamen/api/"
+//const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
 
 
 function LogIn({ login, signup, verify }) {
