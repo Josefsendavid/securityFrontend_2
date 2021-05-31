@@ -469,7 +469,8 @@ refresh()
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
-  const [adminToken, setAdminToken] = useState(true)
+  const [adminToken, setAdminToken] = useState(false)
+
 
   const logout = () => {
     facade.logout()
@@ -478,24 +479,27 @@ function App() {
     localStorage.clear();
   }
   const login = (user, pass) => {
+    let wait = false;
 
-    localStorage.setItem('type', "GET")
-    facade.fetchFromServer(url + "page/getAdminToken").then(data => {
-      console.log(data.token)
-      if(data != null){
-        setAdminToken(true);
-      }
-    })
+    if(user == "admin"){
+      setAdminToken(true)
+    }
 
     facade.login(user, pass)
       .then(res => {
+        wait = true;
         setLoggedIn(true)
+        
+        
       })
       .catch((error) => {
         error.fullError.then((err) => {
           setErrorMessage(err.message)
+          setAdminToken(false)
         })
       })
+
+
   }
   const signup = (user, pass) => {
     facade.signup(user, pass)
