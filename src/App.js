@@ -22,8 +22,8 @@ import { render } from "@testing-library/react";
 import history from './history';
 require("dotenv").config();
 
-const url = "http://localhost:8080/eksamen/api/"
-//const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
+//const url = "http://localhost:8080/eksamen/api/"
+const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
 
 function LogIn({ login, signup, verify }) {
   const init = { username: "", password: "" };
@@ -40,7 +40,7 @@ function LogIn({ login, signup, verify }) {
     }
 
     setError("");
-    console.log(token)
+    
     //login(loginCredentials.username, loginCredentials.password);
 
     fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.reCaptcha_secret}&token=${token}`, {
@@ -48,7 +48,7 @@ function LogIn({ login, signup, verify }) {
       token,
       mode: 'no-cors'
     }).then(resp => {
-      //alert("Login success")
+ 
       login(loginCredentials.username, loginCredentials.password);
     })
       .catch(({ response }) => {
@@ -64,7 +64,7 @@ function LogIn({ login, signup, verify }) {
   const performCreate = (evt) => {
     evt.preventDefault();
     signup(loginCredentials.username, loginCredentials.password);
-    console.log(loginCredentials)
+    
   }
   const onChange = (evt) => {
     setLoginCredentials({ ...loginCredentials, [evt.target.id]: evt.target.value })
@@ -104,7 +104,7 @@ function LogIn({ login, signup, verify }) {
 }
 
 function LoggedIn(props) {
-  console.log(props)
+
 
   return (
     <div>
@@ -132,7 +132,6 @@ function LoggedIn(props) {
 
 const Header = (props) => {
 
-  console.log(props)
   return (
     <div ><ul class="nav nav-pills" style={{ textAlign: "center" }}>
       <li><NavLink exact activeClassName="active" to="/">Home</NavLink></li>
@@ -213,7 +212,7 @@ const SpecificPage = ({ match }) => {
       if (data.writeRights) { setWriteRights(data.writeRights.replace(/\s+/g, '').split(',')) }
       if (data.deleteRights) { setDeleteRights(data.deleteRights.replace(/\s+/g, '').split(',')) }
       if (data.adminRights) { setAdminRights(data.adminRights.replace(/\s+/g, '').split(',')) }
-      console.log(data.adminRights)
+
     })
     localStorage.setItem('type', "GET")
     facade.fetchFromServer(url + "info/loggedInAs").then(data => {
@@ -262,7 +261,7 @@ const SpecificPage = ({ match }) => {
     let userBody = {
       addUser: userToAdd
     }
-    console.log(userBody)
+    
     localStorage.setItem('type', "PUT")
     if(userBody){
     localStorage.setItem('body', JSON.stringify(userBody))
@@ -276,7 +275,7 @@ const SpecificPage = ({ match }) => {
     let userBody = {
       addUser: userToAdd
     }
-    console.log(userBody)
+  
     localStorage.setItem('type', "PUT")
     if(userBody){
     localStorage.setItem('body', JSON.stringify(userBody))
@@ -507,7 +506,7 @@ function App() {
         setLoggedIn(false)
         setAdminToken(false)
         setErrorMessage("")
-        console.log(user + pass)
+        
       }).catch((error) => {
         error.fullError.then((err) => {
           setErrorMessage(err.message)

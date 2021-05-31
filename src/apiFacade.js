@@ -1,11 +1,10 @@
-const URL = "http://localhost:8080/eksamen";
-//const URL = "https://www.josefsendavid.dk/sem4eksamen"
+//const URL = "http://localhost:8080/eksamen";
+const URL = "https://www.josefsendavid.dk/sem4eksamen"
  
 function handleHttpErrors(res) {
   if (!res.ok) {
     return Promise.reject({ status: res.status, fullError: res.json() })
   }
-  console.log(res)
   return res.json();
 }
 

@@ -13,7 +13,7 @@ function AdminFacade() {
             setUser(null)
             facade.fetchDeleteUser(writeValue)
                 .then(data => {
-                    console.log(data)
+           
                     setUser(data.userName)
                     
                       }).catch((error) => {
