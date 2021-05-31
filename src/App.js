@@ -22,8 +22,8 @@ import { render } from "@testing-library/react";
 import history from './history';
 require("dotenv").config();
 
-//const url = "http://localhost:8080/eksamen/api/"
-const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
+const url = "http://localhost:8080/eksamen/api/"
+//const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
 
 function LogIn({ login, signup, verify }) {
   const init = { username: "", password: "" };
@@ -427,9 +427,19 @@ function MyProfile(props) {
   );
 }
 function Admin(props) {
+  const [requests, setRequests] = useState("");
+  localStorage.setItem('type', "GET")
+    facade.fetchFromServer(url + "page/requests").then(data => {
+      setRequests(data)
+    })
+
   let adminData = adminFacade.DeleteUser();
   return (
-    <div>{adminData}</div>
+    <div>{adminData}
+    
+    {requests.requestsDTO ? <div class="wrapper fadeIn">{requests.requestsDTO.map((data ) => (<div><b>{data.type}</b><br/> Request id: {data.id} <br/>User: {data.user} <br/>Page id:{data.pageId}<br/> {data.date}<br/></div>))}</div>
+    : <div></div>}
+    </div>
   )
 }
 const NoMatch = () => {
@@ -456,7 +466,7 @@ refresh()
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
-  const [adminToken, setAdminToken] = useState(false)
+  const [adminToken, setAdminToken] = useState(true)
 
   const logout = () => {
     facade.logout()
@@ -465,9 +475,15 @@ function App() {
     localStorage.clear();
   }
   const login = (user, pass) => {
-    if (user == "admin") {
-      setAdminToken(true)
-    }
+
+    localStorage.setItem('type', "GET")
+    facade.fetchFromServer(url + "page/getAdminToken").then(data => {
+      console.log(data.token)
+      if(data != null){
+        setAdminToken(true);
+      }
+    })
+
     facade.login(user, pass)
       .then(res => {
         setLoggedIn(true)
