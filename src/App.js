@@ -481,7 +481,7 @@ function App() {
   const login = (user, pass) => {
     let wait = false;
 
-    if(user == "admin"){
+    if(user == "ekoadmin"){
       setAdminToken(true)
     }
 
