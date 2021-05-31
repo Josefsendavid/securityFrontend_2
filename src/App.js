@@ -22,8 +22,8 @@ import { render } from "@testing-library/react";
 import history from './history';
 require("dotenv").config();
 
-//const url = "http://localhost:8080/eksamen/api/"
-const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
+const url = "http://localhost:8080/eksamen/api/"
+//const url = "https://www.josefsendavid.dk/sem4eksamen/api/"
 
 function LogIn({ login, signup, verify }) {
   const init = { username: "", password: "" };
@@ -160,7 +160,9 @@ function Home(props) {
   return (
     <div style={{ textAlign: "center" }}>
       <br></br>
-      {!props.loggedIn ? <div><LogIn login={props.login} signup={props.signup} captcha={props.onChangeCaptcha} /> <br /><br /><br /><br />{props.errorMessage}</div> : <div>{props.data}</div>}
+      {!props.loggedIn ? <div><LogIn login={props.login} signup={props.signup} captcha={props.onChangeCaptcha} /> <br /><br /><br /><br />{props.errorMessage}</div> 
+      : <div>{props.data}
+      </div>}
     </div>
   );
 }
@@ -196,11 +198,13 @@ const SpecificPage = ({ match }) => {
   } = match;
   const [data, setData] = useState();
   const [editPage, setEditPage] = useState(false);
+  const [editRights, setEditRights] = useState(false);
   const [page, setPage] = useState("");
   const [adminRights, setAdminRights] = useState("");
   const [writeRights, setWriteRights] = useState("");
   const [deleteRights, setDeleteRights] = useState("");
   const [loggedInAs, setLoggedInAs] = useState("");
+  const [userToAdd, setUserToAdd] = useState("");
 
   useEffect(() => {
     localStorage.setItem('type', "GET")
@@ -222,6 +226,10 @@ const SpecificPage = ({ match }) => {
     setPage(data)
   }
 
+  function EditRights(){
+    setEditRights(true)
+  }
+
   function DeletePage() {
     localStorage.setItem('type', "DELETE")
     facade.sendToServer(url + "page/deletePage/" + pageId)
@@ -229,6 +237,10 @@ const SpecificPage = ({ match }) => {
 
   const onChange = (evt) => {
     setPage({ ...page, [evt.target.id]: evt.target.value })
+  }
+
+  const onRightsChange = (evt) => {
+    setUserToAdd(evt.target.value)
   }
 
   const changePage = (evt) => {
@@ -245,6 +257,34 @@ const SpecificPage = ({ match }) => {
     facade.sendToServer(url + "page/editPage/" + pageId)
   }
 
+  const updateWriteRights = (evt) => {{
+    evt.preventDefault();
+    let userBody = {
+      addUser: userToAdd
+    }
+    console.log(userBody)
+    localStorage.setItem('type', "PUT")
+    if(userBody){
+    localStorage.setItem('body', JSON.stringify(userBody))
+    facade.sendToServer(url + "page/editWriteRights/" + pageId)
+    }
+  }
+  }
+
+  const updateDeleteRights = (evt) => {{
+    evt.preventDefault();
+    let userBody = {
+      addUser: userToAdd
+    }
+    console.log(userBody)
+    localStorage.setItem('type', "PUT")
+    if(userBody){
+    localStorage.setItem('body', JSON.stringify(userBody))
+    facade.sendToServer(url + "page/editDeleteRights/" + pageId)
+    }
+  }
+  }
+
   return (
     <>
       {data ? (
@@ -253,6 +293,7 @@ const SpecificPage = ({ match }) => {
           {data.text}<br /><br />
           <br /><Link to="/searchpages">Return</Link><br /><br />
 
+         
 
           {deleteRights.includes(loggedInAs) || adminRights.includes(loggedInAs) || data.mainAuthor == loggedInAs ? <div>
             <button class="btn btn-outline-info" onClick={() => DeletePage()}>Delete page</button></div>
@@ -276,6 +317,35 @@ const SpecificPage = ({ match }) => {
               //VIS INGENTING
             }   </div>
             : <div></div>}
+
+            {adminRights.includes(loggedInAs) || data.mainAuthor == loggedInAs ? <div>
+            <button class="btn btn-outline-info" onClick={() => EditRights()}>Edit rights</button><br /><br />
+            {editRights ?
+
+              <div>
+                <form onChange={onRightsChange} >
+                  <label><input value={userToAdd.userToAdd} class="form-control" id="title" /></label><br />
+
+                  <div >
+                    <a href="#"><div ><button class="btn btn-outline-info" onClick={updateWriteRights}>Add write permissions</button></div></a>
+                  </div>
+                </form>
+
+                <form onChange={onRightsChange} >
+                  <label><input value={userToAdd.userToAdd} class="form-control" id="title" /></label><br />
+
+                  <div >
+                    <a href="#"><div ><button class="btn btn-outline-info" onClick={updateDeleteRights}>Add delete permissions</button></div></a>
+                  </div>
+                </form>
+
+              </div>
+
+              : <div></div>
+            }   </div>
+            : <div></div>}
+            
+
 
         </>
       ) : <div></div>}
