@@ -428,15 +428,18 @@ function MyProfile(props) {
 }
 function Admin(props) {
   const [requests, setRequests] = useState("");
-  localStorage.setItem('type', "GET")
+
+  function GetRequests(){
+    localStorage.setItem('type', "GET")
     facade.fetchFromServer(url + "page/requests").then(data => {
       setRequests(data)
     })
+  }
 
   let adminData = adminFacade.DeleteUser();
   return (
     <div>{adminData}
-    
+    <button class="btn btn-outline-info" onClick={() => GetRequests()}>Fetch requests</button>
     {requests.requestsDTO ? <div class="wrapper fadeIn">{requests.requestsDTO.map((data ) => (<div><b>{data.type}</b><br/> Request id: {data.id} <br/>User: {data.user} <br/>Page id:{data.pageId}<br/> {data.date}<br/></div>))}</div>
     : <div></div>}
     </div>
